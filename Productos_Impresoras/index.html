@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título de la ventana del navegador -->
+    <title>OffiShop - Impresoras</title>
+
+    <!-- Iconos para la página -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Tipo de letra Popins para la página -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- Link de estilo css -->
+    <link rel="stylesheet" href="Mercado.css">
+
+    <!-- Link de librería jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <!-- JavaScript para los Productos en el carrito y generación de la factura -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Botón de hamburguesa -->
+    <button class="menu-btn" id="menu-toggle">☰</button>
+
+    <!-- Menú lateral -->
+    <nav id="menu_lateral">
+    <ul>
+        <li class="submenu_menu_lateral-toggle">
+        <a href="#" id="productos-toggle">Catálogo</a>
+        <ul class="submenu_menu_lateral">
+            <li><a href="../Productos_Seguridad/index.html">Sistemas de Seguridad</a></li>
+            <li><a href="../Productos_Computadoras/index.html">Computadoras</a></li>
+            <li><a href="../Productos_Computadoras/index.html">Periféricos</a></li>
+            <li><a href="../Productos_Computadoras/index.html">UPS</a></li>
+            <li><a href="../Productos_Computadoras/index.html">Almacenamiento</a></li>
+            <li><a href="../Productos_Redes/index.html">Redes</a></li>
+            <li><a href="../Productos_Impresoras_Fiscales/index.html">Impresoras Fiscales</a></li>
+        </ul>
+        </li>
+        <li><h4 style="color: #000000;">Página Actual</h4></li>
+        <li><a href="#Linea_Productos_Uno">Impresoras</a></li>
+        <li><a href="#Linea_Productos_Dos">Tintas</a></li>
+
+        <li><a href="#Linea_Productos_Tres">Toner</a></li>
+    </ul>
+    </nav>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        let menuToggle = document.getElementById("menu-toggle");
+        let menuLateral = document.getElementById("menu_lateral");
+        let productosToggle = document.getElementById("productos-toggle");
+        let submenu = productosToggle.nextElementSibling;
+
+            // Mostrar/ocultar menú lateral
+            menuToggle.addEventListener("click", function () {
+                menuLateral.style.left = menuLateral.style.left === "0px" ? "-200px" : "0px";
+            });
+
+            // Mostrar/ocultar submenú de productos
+            productosToggle.addEventListener("click", function (event) {
+                event.preventDefault();
+                submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+            });
+
+            // Cerrar menú si se hace clic fuera
+            document.addEventListener("click", function (event) {
+                if (!menuLateral.contains(event.target) && !menuToggle.contains(event.target)) {
+                    menuLateral.style.left = "-250px";
+                }
+            });
+        });
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="container">
+
+        <!--Encabezado de la pagina-->
+        <header>
+            <a href="../index.html" class="logo-text">
+                <span>O</span>ff<div class="pencil"></div><span>S</span>hop
+            </a>
+
+            <div id="busqueda-container">
+                <input type="text" id="searchInput" placeholder="Buscar...">
+                <button id="searchButton">🔍</button>
+                <div id="search-navigation" style="display: none;">
+                    <button id="prevResult">⬅</button>
+                    <span id="resultCounter">0/0</span>
+                    <button id="nextResult">➡</button>
+                </div>
+                <div id="search-dropdown" style="display: none;">
+                    <ul id="search-results-list"></ul>
+                </div>
+            </div>
+        
+            <script>
+                let currentIndex = 0;
+                let foundElements = [];
+                let searchResults = [];
+        
+                const paginasAExplorar = [
+                    "../index.html",
+                    "../Productos_Impresoras/index.html",
+                    "../Productos_Impresoras_Fiscales/index.html",
+                    "../Productos_Redes/index.html",
+                    "../Productos_Seguridad/index.html"
+                ];
+        
+                document.getElementById('searchButton').addEventListener('click', function() {
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    if (searchTerm === '') return;
+        
+                    clearHighlights();
+                    searchResults = [];
+                    searchInCurrentPage(searchTerm);
+                    searchInOtherPages(searchTerm);
+                });
+        
+                document.getElementById('prevResult').addEventListener('click', function() {
+                    if (foundElements.length > 0) {
+                        currentIndex = (currentIndex - 1 + foundElements.length) % foundElements.length;
+                        scrollToResult();
+                    }
+                });
+        
+                document.getElementById('nextResult').addEventListener('click', function() {
+                    if (foundElements.length > 0) {
+                        currentIndex = (currentIndex + 1) % foundElements.length;
+                        scrollToResult();
+                    }
+                });
+        
+                function searchInCurrentPage(term) {
+                    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+                    const contentDiv = document.body;
+                    const textNodes = getTextNodes(contentDiv);
+                    foundElements = [];
+                    currentIndex = 0;
+        
+                    textNodes.forEach(node => {
+                        const matches = [...node.textContent.matchAll(regex)];
+                        if (matches.length > 0) {
+                            const spanWrapper = document.createElement('span');
+                            let lastIndex = 0;
+                            matches.forEach(match => {
+                                const matchIndex = match.index;
+                                spanWrapper.appendChild(document.createTextNode(node.textContent.substring(lastIndex, matchIndex)));
+        
+                                const highlightSpan = document.createElement('span');
+                                highlightSpan.className = 'highlight';
+                                highlightSpan.textContent = match[0];
+                                foundElements.push(highlightSpan);
+        
+                                spanWrapper.appendChild(highlightSpan);
+                                lastIndex = matchIndex + match[0].length;
+                            });
+        
+                            spanWrapper.appendChild(document.createTextNode(node.textContent.substring(lastIndex)));
+                            node.replaceWith(spanWrapper);
+                        }
+                    });
+        
+                    updateNavigation();
+                    if (foundElements.length > 0) scrollToResult();
+                }
+        
+                function searchInOtherPages(term) {
+                    let resultsList = document.getElementById("search-results-list");
+                    resultsList.innerHTML = "";
+        
+                    paginasAExplorar.forEach(page => {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("GET", page, true);
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(xhr.responseText, "text/html");
+                                const textContent = doc.body.innerText.toLowerCase();
+        
+                                if (textContent.includes(term.toLowerCase())) {
+                                    searchResults.push({ page, term });
+        
+                                    let listItem = document.createElement("li");
+                                    let link = document.createElement("a");
+                                    link.href = page;
+                                    link.textContent = `Ir a: ${page}`;
+                                    link.target = "_blank";
+        
+                                    listItem.appendChild(link);
+                                    resultsList.appendChild(listItem);
+                                }
+        
+                                updateNavigation();
+                            }
+                        };
+                        xhr.send();
+                    });
+        
+                    if (searchResults.length > 0) {
+                        document.getElementById("search-dropdown").style.display = "block";
+                    } else {
+                        document.getElementById("search-dropdown").style.display = "none";
+                    }
+                }
+        
+                function getTextNodes(element) {
+                    const textNodes = [];
+                    function recursiveSearch(node) {
+                        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+                            textNodes.push(node);
+                        } else {
+                            node.childNodes.forEach(child => recursiveSearch(child));
+                        }
+                    }
+                    recursiveSearch(element);
+                    return textNodes;
+                }
+        
+                function scrollToResult() {
+                    if (foundElements.length > 0) {
+                        foundElements[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        updateNavigation();
+                    }
+                }
+        
+                function updateNavigation() {
+                    document.getElementById('search-navigation').style.display = (foundElements.length > 0 || searchResults.length > 0) ? 'inline-block' : 'none';
+                    document.getElementById('resultCounter').textContent = foundElements.length > 0 ? `${currentIndex + 1}/${foundElements.length}` : `Encontrado en ${searchResults.length} páginas`;
+        
+                    if (searchResults.length > 0) {
+                        document.getElementById("search-dropdown").style.display = "block";
+                    } else {
+                        document.getElementById("search-dropdown").style.display = "none";
+                    }
+                }
+        
+                function clearHighlights() {
+                    document.querySelectorAll('.highlight').forEach(span => {
+                        const parent = span.parentNode;
+                        parent.replaceChild(document.createTextNode(span.textContent), span);
+                        parent.normalize();
+                    });
+                    foundElements = [];
+                    searchResults = [];
+                    updateNavigation();
+                }
+            </script>
+        </header>
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Carrito de compras -->
+        <button id="carrito-boton" onclick="toggleCarrito()">🛒 <span id="contador-carrito">0</span></button>
+
+        <div id="carrito-container" class="carrito-container">
+            <h2>Lista de compras</h2>
+            <ul id="lista-carrito"></ul>
+            <p><strong>Total: $<span id="total-carrito">0.00</span></strong></p>
+            <button class="boton_Ordenar_producto" onclick="finalizarCompra()">Finalizar Orden</button>
+        </div>
+
+        <script>
+            function toggleCarrito() {
+                const carritoContainer = document.getElementById("carrito-container");
+                carritoContainer.classList.toggle("activo");
+                actualizarCarrito();
+            }
+
+            let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+            function agregarAlCarrito(id, nombre, precio) {
+                let productoExistente = carrito.find(producto => producto.id === id);
+                if (productoExistente) {
+                    productoExistente.cantidad++;
+                } else {
+                    carrito.push({ id, nombre, precio, cantidad: 1 });
+                }
+                guardarCarrito();
+            }
+
+            function incrementarCantidad(id) {
+                let producto = carrito.find(producto => producto.id === id);
+                if (producto) {
+                    producto.cantidad++;
+                    guardarCarrito();
+                }
+            }
+
+            function disminuirCantidad(id) {
+                let producto = carrito.find(producto => producto.id === id);
+                if (producto) {
+                    producto.cantidad--;
+                    if (producto.cantidad <= 0) {
+                        eliminarDelCarrito(id);
+                    } else {
+                        guardarCarrito();
+                    }
+                }
+            }
+
+            function eliminarDelCarrito(id) {
+                carrito = carrito.filter(producto => producto.id !== id);
+                guardarCarrito();
+            }
+
+            function guardarCarrito() {
+                localStorage.setItem("carrito", JSON.stringify(carrito));
+                actualizarCarrito();
+            }
+
+            function actualizarCarrito() {
+                const contadorCarrito = document.getElementById("contador-carrito");
+                const listaCarrito = document.getElementById("lista-carrito");
+                const totalCarrito = document.getElementById("total-carrito");
+
+                contadorCarrito.innerText = carrito.reduce((acc, producto) => acc + producto.cantidad, 0);
+
+                listaCarrito.innerHTML = "";
+                let total = 0;
+
+                carrito.forEach(producto => {
+                    total += producto.precio * producto.cantidad;
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        ${producto.nombre} - $${producto.precio.toFixed(2)} x ${producto.cantidad} 
+                        <button onclick="disminuirCantidad(${producto.id})">➖</button>
+                        <button onclick="incrementarCantidad(${producto.id})">➕</button>
+                        <button onclick="eliminarDelCarrito(${producto.id})">❌</button>
+                    `;
+                    listaCarrito.appendChild(li);
+                });
+
+                totalCarrito.innerText = total.toFixed(2);
+            }
+
+            function finalizarCompra() {
+                if (carrito.length === 0) {
+                    alert("El carrito está vacío.");
+                    return;
+                }
+
+                // Guardar carrito en sessionStorage
+                sessionStorage.setItem('carrito', JSON.stringify(carrito));
+
+                // Redirigir directamente al formulario
+                window.location.href = 'formulario.html';
+            }
+
+            actualizarCarrito();
+        </script>
+
+
+
+
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!--Cuerpo de la pagina-->
+        <main>
+
+
+
+            <!-- Cámaras de Seguridad --> 
+            <div class="seccion" id="Linea_Productos_Uno">
+                <div class="Titulo">
+                    <h1>Impresoras</h1>
+                </div>
+                <div class="Cuerpo">
+
+                    <div class="contenedor-productos">
+                        <div class="producto" data-id="1" data-nombre="Impresora HP 580" data-precio="290">
+                            <img src="IMG/IMP_HP_580_tinta_continua_multifuncional.png" alt="Impresora HP 580">
+                            <div class="info">
+                                <h4>Impresora HP 580</h4>
+                                <p>Tinta Continua Multifuncional</p>
+                                <p>$290</p>
+                                <button onclick="agregarAlCarrito(1, 'Impresora HP 580', 290)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                        
+                        <div class="producto" data-id="2" data-nombre="Impresora Multifuncional CANON WI-FI" data-precio="555">
+                            <img src="IMG/IMP_Multifuncional_CANON_MF.png" alt="Impresora Multifuncional CANON WI-FI">
+                            <div class="info">
+                                <h4>Impresora Multifuncional CANON WI-FI</h4>
+                                <p>MF 455 DW 057</p>
+                                <p>$555</p>
+                                <button onclick="agregarAlCarrito(2, 'Impresora Multifuncional CANON WI-FI', 555)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <div class="producto" data-id="3" data-nombre="Impresora CANON G-4110" data-precio="347">
+                            <img src="IMG/IMPRE_CANON_G-4110.png" alt="Impresora CANON G-4110">
+                            <div class="info">
+                                <h4>Impresora CANON G-4110</h4>
+                                <p>Multifuncional Tinta Continua</p>
+                                <p>$347</p>
+                                <button onclick="agregarAlCarrito(3, 'Impresora CANON G-4110', 347)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <div class="producto" data-id="4" data-nombre="Impresora CANON G3170" data-precio="290">
+                            <img src="IMG/IMPRESORA_CANON_G3170.png" alt="Impresora CANON G3170">
+                            <div class="info">
+                                <h4>Impresora CANON G3170</h4>
+                                <p>Multifuncional WI-FI GI-11</p>
+                                <p>$290</p>
+                                <button onclick="agregarAlCarrito(4, 'Impresora CANON G3170', 290)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="5" data-nombre="Impresora CANON Laser" data-precio="173">
+                            <img src="IMG/Impresora_CANON_Laser_LBP6030W_Wifi.png" alt="Impresora CANON Laser">
+                            <div class="info">
+                                <h4>Impresora CANON Laser</h4>
+                                <p>LBP 6030 W WI-FI 85</p>
+                                <p>$173</p>
+                                <button onclick="agregarAlCarrito(5, 'Impresora CANON Laser', 173)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="6" data-nombre="Impresora CANON MF 264" data-precio="332">
+                            <img src="IMG/Impresora_CANON_MF264DW_II.png" alt="Impresora CANON MF 264">
+                            <div class="info">
+                                <h4>Impresora CANON MF 264</h4>
+                                <p>DW II Multifuncional 051</p>
+                                <p>$332</p>
+                                <button onclick="agregarAlCarrito(6, 'Impresora CANON MF 264', 332)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="7" data-nombre="Impresora CANON MF 273DW" data-precio="361">
+                            <img src="IMG/Impresora_CANON_mf273DW_II.png" alt="Impresora CANON MF 273DW">
+                            <div class="info">
+                                <h4>Impresora CANON MF 273DW</h4>
+                                <p>Multifuncional Laser</p>
+                                <p>$361</p>
+                                <button onclick="agregarAlCarrito(7, 'Impresora CANON MF 273DW', 361)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="8" data-nombre="Impresora CANON MF 465 DW" data-precio="540">
+                            <img src="IMG/Impresora_CANON_MF_465_DW.png" alt="Impresora CANON MF 465 DW">
+                            <div class="info">
+                                <h4>Impresora CANON MF 465 DW</h4>
+                                <p>Laser ADF CRG-070H</p>
+                                <p>$540</p>
+                                <button onclick="agregarAlCarrito(8, 'Impresora CANON MF 465 DW', 540)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="9" data-nombre="Impresora HP Laser MFP 137" data-precio="336">
+                            <img src="IMG/Impresora_HP_Laser_MFP_137FNW.png" alt="Impresora HP Laser MFP 137">
+                            <div class="info">
+                                <h4>Impresora HP Laser MFP 137</h4>
+                                <p>FNW Multifuncional 105</p>
+                                <p>$336</p>
+                                <button onclick="agregarAlCarrito(9, 'Impresora HP Laser MFP 137', 336)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="10" data-nombre="Impresora HP M111W" data-precio="168">
+                            <img src="IMG/Impresora_HP_M111W_laser_wifi_150_A1500.png" alt="Impresora HP M111W">
+                            <div class="info">
+                                <h4>Impresora HP M111W</h4>
+                                <p>Laser WI-FI 150 A 1500</p>
+                                <p>$168</p>
+                                <button onclick="agregarAlCarrito(10, 'Impresora HP M111W', 168)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="11" data-nombre="Impresora HP M182 NW" data-precio="510">
+                            <img src="IMG/Impresora_HP_M182NW.png" alt="Impresora HP M182 NW">
+                            <div class="info">
+                                <h4>Impresora HP M182 NW</h4>
+                                <p>Laser Color Multifuncional 215 A</p>
+                                <p>$510</p>
+                                <button onclick="agregarAlCarrito(11, 'Impresora HP M182 NW', 510)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="12" data-nombre="Impresora HP M182 NW" data-precio="510">
+                            <img src="IMG/Impresora_HP_M404DW_laser_wifi_58A.png" alt="Impresora HP M182 NW">
+                            <div class="info">
+                                <h4>Impresora HP M182 NW</h4>
+                                <p>NW Laser Color Multifuncional 215 A</p>
+                                <p>$510</p>
+                                <button onclick="agregarAlCarrito(12, 'Impresora HP M182 NW', 510)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="13" data-nombre="Impresora HP M479 FDW" data-precio="857">
+                            <img src="IMG/Impresora_HP_M479FDW_laser_color_multifuncional_414.png" alt="Impresora HP M479 FDW">
+                            <div class="info">
+                                <h4>Impresora HP M479 FDW</h4>
+                                <p>Laser Color Multifuncional 414</p>
+                                <p>$857</p>
+                                <button onclick="agregarAlCarrito(13, 'Impresora HP M479 FDW', 857)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="14" data-nombre="Impresora HP MFP 4303" data-precio="822">
+                            <img src="IMG/Impresora_HP_MFP_4303.png" alt="Impresora HP MFP 4303">
+                            <div class="info">
+                                <h4>Impresora HP MFP 4303</h4>
+                                <p>Laser Color Multifuncional W 2300</p>
+                                <p>$822</p>
+                                <button onclick="agregarAlCarrito(14, 'Impresora HP MFP 4303', 822)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="15" data-nombre="Impresora EPSON L1250" data-precio="237">
+                            <img src="IMG/Impresora_L1250_EPSON.png" alt="Impresora EPSON L1250">
+                            <div class="info">
+                                <h4>Impresora EPSON L1250</h4>
+                                <p>Tinta Continua 544</p>
+                                <p>$237</p>
+                                <button onclick="agregarAlCarrito(15, 'Impresora EPSON L1250', 237)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="16" data-nombre="Impresora Laser HP 4103" data-precio="467">
+                            <img src="IMG/Impresora_laser_hp_4103FDW_multifunc_WIFI_LAN.png" alt="Impresora Laser HP 4103">
+                            <div class="info">
+                                <h4>Impresora Laser HP 4103</h4>
+                                <p>Multifuncional WI-FI LAN</p>
+                                <p>$467</p>
+                                <button onclick="agregarAlCarrito(16, 'Impresora Laser HP 4103', 467)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="17" data-nombre="Impresora Laser HP M283FDW" data-precio="703">
+                            <img src="IMG/Impresora_laser_hp_m283FDW_206a_W2110.png" alt="Impresora Laser HP M283FDW">
+                            <div class="info">
+                                <h4>Impresora Laser HP M283FDW</h4>
+                                <p>206 W2110</p>
+                                <p>$703</p>
+                                <button onclick="agregarAlCarrito(17, 'Impresora Laser HP M283FDW', 703)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="18" data-nombre="Impresora EPSON L3250" data-precio="322">
+                            <img src="IMG/ImpresoraEPSON_L3250.png" alt="Impresora EPSON L3250">
+                            <div class="info">
+                                <h4>Impresora EPSON L3250</h4>
+                                <p>Multifuncional de Tinta Full Color</p>
+                                <p>$322</p>
+                                <button onclick="agregarAlCarrito(18, 'Impresora EPSON L3250', 322)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="19" data-nombre="Impresora EPSON L5590" data-precio="531">
+                            <img src="IMG/ImpresoraEPSON_L5590.png" alt="Impresora EPSON L5590">
+                            <div class="info">
+                                <h4>Impresora EPSON L5590</h4>
+                                <p>Multifuncional Tinta Continua</p>
+                                <p>$531</p>
+                                <button onclick="agregarAlCarrito(19, 'Impresora EPSON L5590', 531)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <!-- Se pueden agregar más productos aquí -->
+                    </div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            document.querySelectorAll(".producto").forEach(producto => {
+                                let precioElement = producto.querySelector("p");
+                                let precio = parseFloat(producto.getAttribute("data-precio"));
+                                if (!isNaN(precio)) {
+                                    precioElement.textContent = `$${precio.toFixed(2)}`;
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+                
+                
+            </div>
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Cables -->
+            <div class="seccion" id="Linea_Productos_Dos">
+                    
+                <!-- Título -->
+                <div class="Titulo">
+                    <h1>Tintas</h1>
+                </div>
+
+                <!-- Presentación -->
+                <div class="Cuerpo">
+                    
+                    <div class="contenedor-productos">
+                        <div class="producto" data-id="20" data-nombre="Tinta CANON Amarillo" data-precio="16">
+                            <img src="IMG/tinta_CANON_amarillo_GI_190_Y_70_ML_GL_3100.png" alt="Tinta CANON Amarillo">
+                            <div class="info">
+                                <h4>Tinta CANON Amarillo</h4>
+                                <p>GI 190 Y 70 ML GL 3100</p>
+                                <p>$16</p>
+                                <button onclick="agregarAlCarrito(20, 'Tinta CANON Amarillo', 16)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                        
+                        <div class="producto" data-id="21" data-nombre="Tinta EPSON 544" data-precio="15">
+                            <img src="IMG/Tinta_EPSON_544_Negro.png" alt="Tinta EPSON 544">
+                            <div class="info">
+                                <h4>Tinta EPSON 544</h4>
+                                <p>T544120 Negro L3110/L3150/Agua</p>
+                                <p>$15</p>
+                                <button onclick="agregarAlCarrito(21, 'Tinta EPSON 544', 15)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <div class="producto" data-id="22" data-nombre="Tinta Generica CANON 190" data-precio="3,47">
+                            <img src="IMG/tinta_generica_CANON_190_amarillo_70_ML_G2100_3100.png" alt="Tinta Generica CANON 190">
+                            <div class="info">
+                                <h4>Tinta Generica CANON 190</h4>
+                                <p>Amarillo 70ML G2100 3100</p>
+                                <p>$3,47</p>
+                                <button onclick="agregarAlCarrito(22, 'Tinta Generica CANON 190', 3,47)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <div class="producto" data-id="23" data-nombre="Tinta MaxPrint EPSON 504" data-precio="3,47">
+                            <img src="IMG/tinta_maxiprint_epson_504_amarillo_4150.png" alt="Tinta MaxPrint EPSON 504">
+                            <div class="info">
+                                <h4>Tinta MaxPrint EPSON 504</h4>
+                                <p>Amarillo 4150</p>
+                                <p>$3,47</p>
+                                <button onclick="agregarAlCarrito(23, 'Tinta MaxPrint EPSON 504', 3,47)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="24" data-nombre="Tinta MaxiPrint EPSON 544" data-precio="3,47">
+                            <img src="IMG/Tinta_MAXIPRINT_EPSON_544_Negro.png" alt="Tinta MaxiPrint EPSON 544">
+                            <div class="info">
+                                <h4>Tinta MaxiPrint EPSON 544</h4>
+                                <p>Negro 3250 3150</p>
+                                <p>$3,47</p>
+                                <button onclick="agregarAlCarrito(24, 'Tinta MaxiPrint EPSON 544', 3,47)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                
+                        <!-- Se pueden agregar más productos aquí -->
+                    </div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            document.querySelectorAll(".producto").forEach(producto => {
+                                let precioElement = producto.querySelector("p");
+                                let precio = parseFloat(producto.getAttribute("data-precio"));
+                                if (!isNaN(precio)) {
+                                    precioElement.textContent = `$${precio.toFixed(2)}`;
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+                
+
+                
+            
+            </div><!-- *************** -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Controladores -->
+            <div class="seccion" id="Linea_Productos_Tres">
+                    
+                <!-- Título -->
+                <div class="Titulo">
+                    <h1>Toner</h1>
+                </div>
+
+                <!-- Presentación -->
+                <div class="Cuerpo">
+                    
+                    <div class="contenedor-productos">
+                        <div class="producto" data-id="25" data-nombre="Toner ASTA CANON 057" data-precio="44,61">
+                            <img src="IMG/toner_ASTA_CANON_057H_HP_CF258X_406_428.png" alt="Toner ASTA CANON 057">
+                            <div class="info">
+                                <h4>Toner ASTA CANON 057</h4>
+                                <p>H HP CF-258X 406 428</p>
+                                <p>$44,61</p>
+                                <button onclick="agregarAlCarrito(25, 'Toner ASTA CANON 057', 44,61)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                        
+                        <div class="producto" data-id="26" data-nombre="Toner ASTA W1500" data-precio="34,7">
+                            <img src="IMG/toner_ASTA_W1500A_150A_CON-CHIP_HP_111_M141.png" alt="Toner ASTA W1500">
+                            <div class="info">
+                                <h4>Toner ASTA W1500</h4>
+                                <p>A 150 A C/Chip HP 111 M141</p>
+                                <p>$34,7</p>
+                                <button onclick="agregarAlCarrito(26, 'Toner ASTA W1500', 34,7)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <div class="producto" data-id="27" data-nombre="Toner EOC HP 105 XL" data-precio="26,77">
+                            <img src="IMG/toner_EOC_HP_105XL_con_CHIP_107_135_137_HP.png" alt="Toner EOC HP 105 XL">
+                            <div class="info">
+                                <h4>Toner EOC HP 105 XL</h4>
+                                <p>Con Chip 107 135 137 HP</p>
+                                <p>$26,77</p>
+                                <button onclick="agregarAlCarrito(27, 'Toner EOC HP 105 XL', 26,77)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+                
+                        <div class="producto" data-id="28" data-nombre="Toner MaxPrint CANON CRG-137" data-precio="16,65">
+                            <img src="IMG/toner_Maxiprint_CANON_CRG-137_HP_CF-283_X.png" alt="Toner MaxPrint CANON CRG-137">
+                            <div class="info">
+                                <h4>Toner MaxPrint CANON CRG-137</h4>
+                                <p>HP CF-283 X</p>
+                                <p>$16,65</p>
+                                <button onclick="agregarAlCarrito(28, 'Toner MaxPrint CANON CRG-137', 16,65)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="producto" data-id="29" data-nombre="Toner MaxPrint HP CF258" data-precio="66,43">
+                            <img src="IMG/toner_Maxiprint_HP_CF258_con_CHIP_M304-M404-M428.png" alt="Toner MaxPrint HP CF258">
+                            <div class="info">
+                                <h4>Toner MaxPrint HP CF258</h4>
+                                <p>Con Chip M304/M404/M428/</p>
+                                <p>$66,43</p>
+                                <button onclick="agregarAlCarrito(29, 'Toner MaxPrint HP CF258', 66,43)">Añadir al Carrito</button>
+                            </div>
+                        </div>
+
+                
+                        <!-- Se pueden agregar más productos aquí -->
+                    </div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            document.querySelectorAll(".producto").forEach(producto => {
+                                let precioElement = producto.querySelector("p");
+                                let precio = parseFloat(producto.getAttribute("data-precio"));
+                                if (!isNaN(precio)) {
+                                    precioElement.textContent = `$${precio.toFixed(2)}`;
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+                
+
+            
+            </div><!-- *************** -->
+
+
+
+
+
+            
+
+
+
+
+
+
+
+        </main>
+
+        <!--Pies de la pagina-->
+        <footer>
+            <p style="color: #0465a9;">&copy; 2025 Mercado Online de OffiShop -/- RIF: J=50119753-9</p>
+        </footer>
+
+    </div>
+ 
+    <!-- Barra lateral derecha para las Redes de OffiShop -->
+    <nav id="menu_contactos">      
+        <h3>Síguenos en...</h3>
+        <ul>
+            <!--Telefono-->
+            <li><a style="background: #0066FF;" href="tel:+584124447744" target="_blank"><i class="fas fa-phone"></i></a></li>
+            <!--FaceBook-->
+            <li><a style="background: #3b5998;" href="https://www.facebook.com/share/16Jx9qFki4/" target="_blank"><i class="fab fa-facebook"></i></a></li>
+            <!--Instagram-->
+            <li><a style="background: #bc2a8d;" href="https://www.instagram.com/offishop_ll?igsh=enQ5OTAyZmNyazdu" target="_blank"><i class="fab fa-instagram"></i></a></li>
+            <!--WhatsApp-->
+            <li><a style="background: #25d366" href="https://api.whatsapp.com/send/?phone=584124447744&text&type=phone_number&app_absent=0&wame_ctl=1" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+            <!--Correo-->
+            <li><a style="background: #5dade2;" href="mailto:Offishop.ventas1@gmail.com"><i class="fas fa-envelope"></i></a></li>
+            <!--TikTok-->
+            <li"><a style="background: #010101;" href="https://www.tiktok.com/@offishop_ll" target="_blank"><i class="fab fa-tiktok"></i></a></li>
+        </ul>
+    </nav>
+</body>
+
+</html>
+ 
