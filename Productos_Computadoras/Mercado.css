@@ -1,0 +1,1225 @@
+/* General */
+* {
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box; /* Asegura que padding y border no afecten el tamaño total */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at center, 
+        #004080 10%,   /* Azul principal */
+        #0074CC 30%,   /* Azul brillante */
+        #1E90FF 50%,   /* Azul medio */
+        #0465a9 70%,   /* Azul oscuro */
+        #004080 90%    /* Repetimos el azul principal */
+    );
+    background-size: 200% 200%;
+    animation: spinBackground 6s linear infinite;
+    color: #000000;
+}
+
+/* Animación para hacer girar el fondo */
+@keyframes spinBackground {
+    0% { background-position: 0% 0%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 100%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* ================== Barra de búsqueda ================== */
+#busqueda-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1vw; /* Espacio entre el input y el botón */
+    width: 80%;
+    margin: 2vh auto;
+}
+
+/* Estilos para la barra de búsqueda */
+#searchInput {
+    flex: 1; /* Ocupa todo el espacio disponible */
+    padding: 1vh;
+    font-size: 1rem;
+    border: 0.2vw solid #ccc;
+    border-radius: 0.5vw;
+    transition: border-color 0.3s;
+}
+
+#searchInput:focus {
+    border-color: #0465a9;
+    outline: none;
+}
+
+/* Botón de búsqueda (Lupa) */
+#searchButton {
+    background-color: #0465a9;
+    color: #ffffff;
+    border: none;
+    padding: 1vh 2vw;
+    font-size: 1rem;
+    border-radius: 2vw;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#searchButton:hover {
+    background-color: #034985;
+}
+
+/* Contenedor de navegación de búsqueda */
+#search-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1vw;
+    margin-top: 2vh;
+}
+
+/* Botones de navegación */
+#prevResult, #nextResult {
+    background-color: #0465a9;
+    color: #ffffff;
+    border: none;
+    padding: 1vh 2vw;
+    font-size: 1rem;
+    border-radius: 1vw;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#prevResult:hover, #nextResult:hover {
+    background-color: #034985;
+}
+
+/* Contador de resultados */
+#resultCounter {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #000000;
+}
+
+/* Estilos para el resaltado de búsqueda */
+.highlight {
+    background-color: #ccc;
+    color: #000000;
+    font-weight: bold;
+    padding: 0.5vh 1vw;
+    border-radius: 0.5vw;
+}
+
+/* =================== RESPONSIVE: AJUSTES PARA MÓVILES =================== */
+@media (max-width: 600px) {
+    #busqueda-container {
+        flex-direction: row;
+        width: 90%;
+    }
+
+    #searchInput {
+        font-size: 0.9rem;
+        padding: 1.5vh;
+    }
+
+    #searchButton {
+        font-size: 0.8rem;
+        padding: 1vh 3vw;
+    }
+
+    /* Botones de navegación */
+    #prevResult, #nextResult {
+        font-size: 0.8rem;
+        padding: 1vh 3vw;
+    }
+
+    #resultCounter {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 300px) {
+    #busqueda-container {
+        width: 95%;
+    }
+
+    #searchInput {
+        font-size: 0.8rem;
+        padding: 1vh;
+    }
+
+    #searchButton {
+        font-size: 0.7rem;
+        padding: 0.8vh 2vw;
+    }
+
+    /* Botones de navegación */
+    #prevResult, #nextResult {
+        font-size: 0.7rem;
+        padding: 0.8vh 2vw;
+    }
+
+    #resultCounter {
+        font-size: 0.8rem;
+    }
+}
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* Barra lateral de menu */
+/* Estilo del submenú */
+/* Estilos generales del menú lateral */
+#menu_lateral {
+    position: fixed;
+    left: -20%; /* Oculto fuera de la pantalla */
+    top: 0;
+    width: 20%;
+    height: 100%;
+    background: #0465a9;
+    transition: left 0.3s ease-in-out;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    padding-top: 2%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    z-index: 1000;
+    border-radius: 10px;
+}
+
+/* Asegúrate de que el carrusel tenga un z-index más bajo que el menú lateral */
+.Cuerpo_Carusel {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 2%;
+    position: relative;
+    z-index: 1;
+    border-radius: 10px;
+}
+
+/* Estilo del botón hamburguesa */
+.menu-btn {
+    position: fixed;
+    top: 9%;
+    left: 8%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5vw;
+    background: radial-gradient(circle at center, 
+    #0465a9 10%,   /* Azul principal */
+    #1E90FF 30%,   /* Azul brillante */
+    #0074CC 50%,   /* Azul medio */
+    #004080 70%,   /* Azul oscuro */
+    #0465a9 90%    /* Repetimos el azul principal */
+    );
+    color: #ffffff;
+    border-radius: 10px;
+}
+
+.menu-btn:hover {
+    background: radial-gradient(circle at center, 
+    #004080 10%,   /* Azul principal */
+    #0074CC 30%,   /* Azul brillante */
+    #1E90FF 50%,   /* Azul medio */
+    #0465a9 70%,   /* Azul oscuro */
+    #004080 90%    /* Repetimos el azul principal */
+    );
+    transform: scale(1.1);
+}
+
+/* Estilos generales del encabezado */
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 0.5%;
+    border-bottom: 0.3vw solid #0465a9;
+    border-radius: 10px;
+}
+
+/* Estilos generales de la imagen del logo */
+.Logo_Titular {
+    max-height: 15vh;
+    width: auto;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto al pasar el mouse sobre la imagen */
+.Logo_Titular:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* =================== ESTILOS GENERALES DEL CARRITO =================== */
+#carrito-container {
+    position: fixed;
+    top: 5%;
+    right: 10%;
+    width: 25%;
+    max-height: 80vh;
+    background: #000000;
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 1.5%;
+    display: none;
+    z-index: 9999;
+    border-radius: 10px;
+    color: #ffffff;
+}
+
+/* Aparece con animación */
+#carrito-container.activo {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Lista de productos en el carrito */
+#lista-carrito {
+    list-style: none;
+    padding: 0;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+#lista-carrito li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1%;
+    border-bottom: 1px solid #444;
+    font-size: 1vw;
+}
+
+/* =================== BOTÓN DEL CARRITO =================== */
+#carrito-boton {
+    position: fixed;
+    right: 1%;
+    top: 5%;
+    background: #eead11;
+    color: #ffffff;
+    border: none;
+    padding: 1% 1%;
+    font-size: 1.2vw;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+#carrito-boton:hover {
+    background: #e68900;
+}
+
+/* =================== RESPONSIVE: AJUSTES PARA CELULARES =================== */
+@media (max-width: 600px) {
+    #carrito-container {
+        right: 10%;
+        top: 10%;
+        width: 50%;
+    }
+
+    #lista-carrito {
+        max-height: 30vh;
+    }
+
+    #carrito-boton {
+        right: 2%;
+        top: 5%;
+
+        
+        
+        font-size: 2vw;
+    }
+
+    .eliminar-producto {
+        font-size: 2vw;
+    }
+
+    .cantidad-control button {
+        font-size: 2vw;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =================== FORMULARIO DE USUARIO =================== */
+/* Botón de retroceso */
+.btn-retroceso {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 2.5% 4%; /* Proporcional al tamaño de la pantalla */
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2%;
+    transition: background 0.3s ease;
+    margin-bottom: 2%;
+}
+
+.btn-retroceso i {
+    font-size: 1.1rem;
+}
+
+.btn-retroceso:hover {
+    background-color: #0465a9;
+}
+
+.Formulario_Contenedor {
+    width: 90%; /* Se ajusta al ancho del dispositivo */
+    max-width: 600px; /* Máximo tamaño para grandes pantallas */
+    min-height: 60vh; /* Altura relativa */
+    margin: auto;
+    margin-top: 3%;
+    padding: 5%;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor principal */
+.form-container {
+    width: 100%;
+    background: #ffffff;
+    padding: 5%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Títulos */
+h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 5%;
+}
+
+/* Campos del formulario */
+label {
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin-top: 3%;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 3%;
+    margin-top: 2%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Campo de empresa */
+#campo-empresa {
+    margin-top: 4%;
+}
+
+#campo-empresa input {
+    width: 100%;
+    padding: 3%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Botón de envío */
+.Boton_Enviar_Orden {
+    width: 100%;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 3%;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 4%;
+    transition: background 0.3s ease;
+}
+
+.Boton_Enviar_Orden:hover {
+    background-color: #0465a9;
+}
+
+/* Mensajes de error o éxito */
+.mensaje {
+    text-align: center;
+    margin-top: 3%;
+    font-size: 0.9rem;
+}
+
+.error {
+    color: red;
+}
+
+.exito {
+    color: green;
+}
+
+/* Responsividad */
+@media (max-width: 600px) {
+    .Formulario_Contenedor {
+        width: 95%; /* Más ancho en dispositivos pequeños */
+    }
+}
+
+@media (max-width: 400px) {
+    .Formulario_Contenedor {
+        width: 98%;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+.logo-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 4vw; /* Tamaño relativo */
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    position: relative;
+    display: inline-block;
+    color: #000;
+    text-decoration: none;
+}
+
+.logo-text span {
+    color: #0465a9;
+}
+
+.pencil {
+    display: inline-block;
+    width: 1vw; /* Relativo al ancho de la pantalla */
+    height: 4vw; /* Relativo al ancho de la pantalla */
+    background: #000000;
+    position: relative;
+    margin: 0 0.5vw;
+    border-radius: 2px;
+    animation: moveUpDown 1.5s infinite ease-in-out;
+}
+
+.pencil::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 80%;
+    background: #f7cd59;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.pencil::after {
+    content: "";
+    position: absolute;
+    top: -15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 50%;
+    background: black;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.logo-text:hover {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    color: #0465a9;
+}
+
+@keyframes moveUpDown {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+.container {
+    width: 90%; /* Adaptable al ancho de la pantalla */
+    max-width: 1200px;
+    min-height: 60vh;
+    margin: 0.2%;
+    padding: 1%;
+    background-color: #000000;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+main {
+    display: block;
+    height: auto;
+    max-height: 44vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    border-radius: 10px;
+    scrollbar-width: none;
+}
+
+.seccion {
+    margin: auto;
+    padding: 2%;
+    margin-bottom: 2%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #ffffff;
+    border-radius: 10px;
+    background: radial-gradient(circle at center, 
+        #004080 10%,   
+        #0074CC 30%,   
+        #1E90FF 50%,   
+        #0465a9 70%,   
+        #004080 90%);
+    background-size: 200% 200%;
+    animation: spinBackground 6s linear infinite;
+}
+
+.Titulo h1 {
+    color: #ffffff;
+    font-size: 3vw;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: font-size 0.3s ease-in-out;
+}
+
+footer {
+    text-align: center;
+    padding: 1%;
+    background-color: #ffffff;
+    color: #000;
+    border-radius: 0 0 8px 8px;
+    font-size: 1vw;
+}
+
+#menu_contactos {
+    position: fixed;
+    right: 1%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5vw;
+    height: auto;
+    padding: 1vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #0465a9;
+}
+
+#menu_contactos h3 {
+    color: #ffffff;
+    font-size: 1vw;
+    text-align: center;
+    margin-bottom: 1vw;
+    font-weight: 500;
+}
+
+#menu_contactos ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#menu_contactos li {
+    margin-bottom: 1vw;
+}
+
+#menu_contactos a {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3vw;
+    height: 3vw;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 1.5vw;
+    transition: background 0.3s, transform 0.2s;
+}
+
+#menu_contactos a:hover {
+    transform: scale(1.1);
+}
+
+.contenedor-productos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1% 2%;
+    padding: 0%;
+}
+
+.producto {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.producto:hover {
+    transform: scale(1.05);
+}
+
+.producto img {
+    width: 50%;
+    height: 50%;
+    object-fit: cover;
+}
+
+.info {
+    padding: 0%;
+    color: #000;
+}
+
+.info h4 {
+    font-size: 1vw;
+    margin: 0% 0;
+}
+
+.info p {
+    color: #333;
+    font-size: 1vw;
+    margin: 0% 0;
+}
+
+.info button {
+    background-color: #0465a9;
+    color: #ffffff;
+    border: none;
+    padding: 5%;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1vw;
+}
+
+.info button:hover {
+    background-color: #064470;
+}
+
+@media (max-width: 600px) {
+    .contenedor-productos {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.2% 1%;
+    }
+
+    .info h4 {
+        font-size: 2vw;
+    }
+
+    .info p {
+        font-size: 2vw;
+    }
+
+    .info button {
+        font-size: 2vw;
+    }
+}
+
+@media (max-width: 300px) {
+    .contenedor-productos {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 3%;
+    }
+
+    .info h4 {
+        font-size: 5vw;
+    }
+
+    .info p {
+        font-size: 4vw;
+    }
+
+    .info button {
+        font-size: 4vw;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------------------------------------------------
+   Formato para telefonos
+------------------------------------------------------------------------------------------------------------ */
+@media (max-width: 600px) {
+    #menu_lateral {
+        width: 40%;
+        left: -40%;
+    }
+
+    #menu_lateral a {
+        font-size: 2vw;
+        padding: 1.5vw;
+    }
+
+    .menu-btn {
+        top: 5vw;
+        left: 5vw;
+        font-size: 2.5vw;
+        border-radius: 5vw;
+    }
+
+    #menu_contactos {
+        max-height: 80vh;
+        width: 12vw;
+        padding: 2vw;
+        color: #ffffff;
+    }
+    
+    #menu_contactos h3 {
+        font-size: 2vw;
+        color: #ffffff;
+    }
+
+    #menu_contactos ul {
+        padding: 0;
+        color: #ffffff;
+    }
+
+    #menu_contactos li {
+        margin-bottom: 4vw;
+        color: #ffffff;
+    }
+
+    #menu_contactos a {
+        width: 6vw;
+        height: 6vw;
+        border-radius: 50%;
+        font-size: 3vw;
+        color: #ffffff;
+    }
+
+    .logo-text {
+        font-size: 5vw;
+    }
+
+    .pencil {
+        width: 2vw;
+        height: 5vw;
+        border-radius: 0.5vw;
+    }
+
+    .container {
+        width: 85%;
+        padding: 3vw;
+        border-radius: 3vw;
+    }
+
+    main {
+        max-width: 100%;
+        margin-top: 2vw;
+        margin-bottom: 2vw;
+    }
+
+    .seccion {
+        padding: 2vw;
+    }
+
+    .seccion .Titulo h1 {        
+        font-size: 4vw;
+    }
+
+    .Cuerpo {
+        padding: 2vw;
+    }
+
+    .Titulo h1 {
+        font-size: 4vw;
+    }
+
+    .Logo_Titular {
+        max-height: 10vh;
+        width: auto;
+    }
+
+    .carousel-container {
+        width: 98%;
+        border-radius: 3vw;
+    }
+
+    
+    .footer p {
+        font-size: 3vw;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 600px) {
+    #menu_lateral {
+        width: 50%;
+        left: -50%;
+    }
+
+    #menu_lateral a {
+        font-size: 3vw;
+        padding: 2vw;
+    }
+
+    #menu_contactos {
+        width: 10vw;
+        padding: 2vw;
+    }
+    
+    #menu_contactos h3 {
+        font-size: 2vw;
+    }
+
+    #menu_contactos li {
+        margin-bottom: 4vw;
+    }
+
+    #menu_contactos a {
+        width: 5vw;
+        height: 5vw;
+        border-radius: 50%;
+        font-size: 3vw;
+    }
+
+    .container {
+        width: 85%;
+        padding: 3vw;
+        border-radius: 3vw;
+    }
+
+    main {
+        max-width: 100%;
+        margin-top: 3vw;
+        margin-bottom: 3vw;
+    }
+
+    .Cuerpo {
+        padding: 2vw;
+        width: 100%;
+        font-size: 4vw;
+    }
+
+    .footer p {
+        font-size: 3vw;
+    }
+
+}
+
+@media (max-width: 300px) {
+    #menu_lateral {
+        width: 60%;
+        left: -60%;
+    }
+
+    #menu_lateral a {
+        font-size: 3.5vw;
+        padding: 2.5vw;
+    }
+
+    .menu-btn {
+        top: 12vw;
+        left: 4vw;
+        font-size: 3vw;
+        border-radius: 6vw;
+    }
+
+    #menu_contactos {
+        width: 12vw;
+        padding: 2vw;
+    }
+    
+    #menu_contactos h3 {
+        font-size: 3.5vw;
+    }
+
+    #menu_contactos li {
+        margin-bottom: 5vw;
+    }
+
+    #menu_contactos a {
+        width: 10vw;
+        height: 10vw;
+        border-radius: 50%;
+        font-size: 5vw;
+    }
+
+    .container {
+        width: 90%;
+        padding: 3vw;
+        border-radius: 3vw;
+    }
+
+    main {
+        max-width: 100%;
+        height: auto;
+        margin-top: 4vw;
+        margin-bottom: 4vw;
+    }
+
+    .Cuerpo {
+        padding: 3vw;
+        width: 100%;
+        font-size: 4vw;
+    }
+
+    footer {
+        text-align: center;
+        padding: 1.5vw;
+        border-radius: 0 0 2vw 2vw;
+        font-size: 3vw;
+    }
+    
+    .footer p {
+        font-size: 2vw;
+    }
+}

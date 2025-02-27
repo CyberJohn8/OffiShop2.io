@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Orden Compra</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Mercado.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="formulario.js"></script>
+
+</head>
+<body>
+    <div class="Formulario_Contenedor">
+    <!-- Botón de regreso -->
+    <button class="btn-retroceso" onclick="window.location.href='index.html'">
+        <i class="fa fa-arrow-left"></i> Volver
+    </button>
+
+    <h2>Finalizar Orden de Compra</h2>
+    <p>Completa los Campos:</p>
+    <!--<ul id="lista-carrito-formulario"></ul>-->
+
+    <form id="compra-form">
+        <label for="tipo-cliente">Tipo de Cliente:</label>
+        <select id="tipo-cliente" required>
+            <option value="natural">Cliente Natural</option>
+            <option value="juridico">Cliente Jurídico</option>
+        </select>
+
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required>
+
+        <label for="correo">Correo:</label>
+        <input type="email" id="correo" required>
+
+        <div id="campo-empresa" style="display: none;">
+            <label for="empresa">Nombre de la Empresa:</label>
+            <input type="text" id="empresa">
+        </div>
+
+        <button class="Boton_Enviar_Orden" type="submit">Enviar Pedido</button>
+    </form>
+
+    <script>
+        document.querySelector("#tipo-cliente").addEventListener("change", function () {
+            const tipoCliente = this.value;
+            const campoEmpresa = document.querySelector("#campo-empresa");
+
+            campoEmpresa.style.display = tipoCliente === "juridico" ? "block" : "none";
+        });
+
+        document.querySelector("#compra-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Obtener datos del formulario
+            const nombre = document.getElementById("nombre").value.trim();
+            const correo = document.getElementById("correo").value.trim();
+            const tipoCliente = document.getElementById("tipo-cliente").value;
+            const empresa = tipoCliente === "juridico" ? document.getElementById("empresa").value.trim() : "";
+            const carrito = JSON.parse(sessionStorage.getItem("carrito")) || [];
+            const fecha = new Date().toLocaleString();
+            const codigoVerificacion = generarCodigoVerificacion();
+
+            let total = 0;
+            let productosTexto = "";
+            let productosHTML = "";
+
+            carrito.forEach((producto) => {
+                total += producto.precio * producto.cantidad;
+                productosTexto += `${producto.nombre} - ${producto.cantidad} x $${producto.precio.toFixed(2)}\n`;
+                productosHTML += `<tr><td>${producto.nombre}</td><td>${producto.cantidad}</td><td>$${producto.precio.toFixed(2)}</td></tr>`;
+            });
+
+            // Generar PDF
+            doc.text("Confirmación de Pedido", 10, 10);
+            doc.text(`Cliente: ${nombre}`, 10, 20);
+            doc.text(`Correo: ${correo}`, 10, 30);
+            doc.text(`Tipo de Cliente: ${tipoCliente === "juridico" ? "Cliente Jurídico" : "Cliente Natural"}`, 10, 40);
+            if (empresa) {
+                doc.text(`Nombre de la Empresa: ${empresa}`, 10, 50);
+            }
+            doc.text(`Fecha: ${fecha}`, 10, 60);
+            doc.text(`Código de Verificación: ${codigoVerificacion}`, 10, 70);
+            doc.text("Productos:", 10, 80);
+
+            let y = 90;
+            carrito.forEach((producto) => {
+                doc.text(`${producto.nombre} - ${producto.cantidad} x $${producto.precio.toFixed(2)}`, 10, y);
+                y += 10;
+            });
+
+            doc.text(`Total: $${total.toFixed(2)}`, 10, y + 10);
+            doc.save("Orden_Compra.pdf");
+
+            // Vaciar carrito en sessionStorage y localStorage
+            sessionStorage.clear();
+            localStorage.removeItem("carrito");
+
+            // Marcar la compra como exitosa en sessionStorage
+            sessionStorage.setItem("compraExitosa", "true");
+
+            // Enviar correo con EmailJS
+            emailjs.send("service_hknraxq", "template_ogkqzkq", {
+                nombre_cliente: nombre,
+                correo_cliente: correo,
+                tipo_cliente: tipoCliente === "juridico" ? "Cliente Jurídico" : "Cliente Natural",
+                nombre_empresa: empresa, 
+                fecha_actual: fecha,
+                codigo_verificacion: codigoVerificacion,
+                productos: productosHTML,
+                total_compra: total.toFixed(2)
+            }, "lrmsECNCw9_vt9osx").then(
+                function (response) {
+                    alert("Pedido enviado correctamente");
+                    window.location.href = "index.html";
+                },
+                function (error) {
+                    alert("Error al enviar el pedido. Intenta nuevamente.");
+                    console.log(error);
+                }
+            );
+        });
+
+        // Función para generar un código de verificación único
+        function generarCodigoVerificacion() {
+            return Math.random().toString(36).substr(2, 10).toUpperCase();
+        }
+
+    </script>
+    
+</div>
+
+</body>
+</html>
